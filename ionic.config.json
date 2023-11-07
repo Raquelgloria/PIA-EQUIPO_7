@@ -1,0 +1,7 @@
+{
+  "name": "miApp-PIA",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
