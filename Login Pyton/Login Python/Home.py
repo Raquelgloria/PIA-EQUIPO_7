@@ -1,4 +1,16 @@
 import tkinter as tk
+from tkinter import messagebox
+import mysql.connector
+from datetime import datetime
+
+# Conectar a la base de datos MySQL
+def connect_db():
+    return mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="tu_contraseña",
+        database="tu_ba"
+    )
 
 class HomeWindow(tk.Tk):
     def __init__(self):
@@ -25,15 +37,165 @@ class HomeWindow(tk.Tk):
         label_home = tk.Label(self, text="Home Screen", font=("Arial", 24))
         label_home.pack()
 
+        # Crear lista de acciones
+        actions = ["Ingresar Venta", "Modificar Venta", "Eliminar Venta", "Reporte de Venta"]
+
+        for action in actions:
+            button = tk.Button(self, text=action, command=lambda a=action: self.open_action_window(a))
+            button.pack(pady=10)
+
         # Crear widgets para el margen inferior
         margin_bottom = tk.Frame(self, height=margin_height)
         margin_bottom.pack(fill=tk.BOTH, expand=True)
 
         # Configurar propiedades de la ventana
         self.resizable(True, True)  # Permitir redimensionar la ventana tanto horizontal como verticalmente
-        # self.attributes("-fullscreen", True)  # Hacer que la ventana esté siempre maximizada
         self.geometry(f"{window_width}x{window_height}+{screen_width//2 - window_width//2}+{margin_height}")
+
+    def open_action_window(self, action):
+        action_window = ActionWindow(self, action)
+        action_window.grab_set()  # Bloquear la interacción con la ventana principal
+
+class ActionWindow(tk.Toplevel):
+    def __init__(self, master, action):
+        super().__init__(master)
+        self.title(action)
+        self.action = action
+
+        label = tk.Label(self, text=f"Realizando acción: {action}", font=("Arial", 18))
+        label.pack(pady=20)
+
+        if action == "Ingresar Venta":
+            self.create_ingresar_venta_form()
+        elif action == "Modificar Venta":
+            self.create_modificar_venta_form()
+        elif action == "Eliminar Venta":
+            self.create_eliminar_venta_form()
+        elif action == "Reporte de Venta":
+            self.generate_report()
+
+    def create_ingresar_venta_form(self):
+        self.client_id_entry = tk.Entry(self)
+        self.client_id_entry.pack(pady=10)
+        self.client_id_entry.insert(0, "ClienteID")
+
+        self.employee_id_entry = tk.Entry(self)
+        self.employee_id_entry.pack(pady=10)
+        self.employee_id_entry.insert(0, "EmpleadoID")
+
+        self.date_entry = tk.Entry(self)
+        self.date_entry.pack(pady=10)
+        self.date_entry.insert(0, "FechaVenta (YYYY-MM-DD)")
+
+        self.total_price_entry = tk.Entry(self)
+        self.total_price_entry.pack(pady=10)
+        self.total_price_entry.insert(0, "PrecioTotal")
+
+        confirm_button = tk.Button(self, text="Confirmar", command=self.ingresar_venta)
+        confirm_button.pack(pady=20)
+
+    def create_modificar_venta_form(self):
+        self.sale_id_entry = tk.Entry(self)
+        self.sale_id_entry.pack(pady=10)
+        self.sale_id_entry.insert(0, "VentaID")
+
+        self.total_price_entry = tk.Entry(self)
+        self.total_price_entry.pack(pady=10)
+        self.total_price_entry.insert(0, "Nuevo PrecioTotal")
+
+        confirm_button = tk.Button(self, text="Confirmar", command=self.modificar_venta)
+        confirm_button.pack(pady=20)
+
+    def create_eliminar_venta_form(self):
+        self.sale_id_entry = tk.Entry(self)
+        self.sale_id_entry.pack(pady=10)
+        self.sale_id_entry.insert(0, "VentaID")
+
+        confirm_button = tk.Button(self, text="Confirmar", command=self.eliminar_venta)
+        confirm_button.pack(pady=20)
+
+    def generate_report(self):
+        conn = connect_db()
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT * FROM Ventas")
+        rows = cursor.fetchall()
+
+        report_text = "\n".join([str(row) for row in rows])
+        report_label = tk.Label(self, text=report_text, font=("Arial", 12))
+        report_label.pack(pady=10)
+
+        cursor.close()
+        conn.close()
+
+    def ingresar_venta(self):
+        conn = connect_db()
+        cursor = conn.cursor()
+
+        client_id = self.client_id_entry.get()
+        employee_id = self.employee_id_entry.get()
+        date = self.date_entry.get()
+        total_price = self.total_price_entry.get()
+
+        try:
+            cursor.execute(
+                "INSERT INTO Ventas (ClienteID, EmpleadoID, FechaVenta, PrecioTotal) VALUES (%s, %s, %s, %s)",
+                (client_id, employee_id, date, total_price)
+            )
+            conn.commit()
+            messagebox.showinfo("Confirmación", "Venta ingresada con éxito")
+        except Exception as e:
+            messagebox.showerror("Error", f"Error al ingresar la venta: {e}")
+        finally:
+            cursor.close()
+            conn.close()
+            self.destroy()
+
+    def modificar_venta(self):
+        conn = connect_db()
+        cursor = conn.cursor()
+
+        sale_id = self.sale_id_entry.get()
+        new_total_price = self.total_price_entry.get()
+
+        try:
+            cursor.execute(
+                "UPDATE Ventas SET PrecioTotal = %s WHERE VentaID = %s",
+                (new_total_price, sale_id)
+            )
+            conn.commit()
+            messagebox.showinfo("Confirmación", "Venta modificada con éxito")
+        except Exception as e:
+            messagebox.showerror("Error", f"Error al modificar la venta: {e}")
+        finally:
+            cursor.close()
+            conn.close()
+            self.destroy()
+
+    def eliminar_venta(self):
+        conn = connect_db()
+        cursor = conn.cursor()
+
+        sale_id = self.sale_id_entry.get()
+
+        try:
+            cursor.execute("DELETE FROM Ventas WHERE VentaID = %s", (sale_id,))
+            conn.commit()
+            messagebox.showinfo("Confirmación", "Venta eliminada con éxito")
+        except Exception as e:
+            messagebox.showerror("Error", f"Error al eliminar la venta: {e}")
+        finally:
+            cursor.close()
+            conn.close()
+            self.destroy()
 
 if __name__ == "__main__":
     home_window = HomeWindow()
     home_window.mainloop()
+
+
+
+
+
+
+

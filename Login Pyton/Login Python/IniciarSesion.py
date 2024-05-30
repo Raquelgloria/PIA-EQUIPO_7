@@ -56,7 +56,7 @@ class LoginWindow(tk.Tk):
                 host="127.0.0.1",
                 user="root",
                 password="",
-                database="agencia_autos"
+                database="agencia_pia"
             )
 
             # Crear un cursor para ejecutar consultas SQL
