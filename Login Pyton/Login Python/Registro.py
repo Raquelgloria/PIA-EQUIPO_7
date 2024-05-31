@@ -53,6 +53,7 @@ class RegisterWindow(tk.Tk):
         self.login_window = login_window
 
     def registrar_usuario(self):
+####BACKEND
         username = self.entry_nombre.get().strip()
         employeeID = self.entry_idemployee.get().strip()
         

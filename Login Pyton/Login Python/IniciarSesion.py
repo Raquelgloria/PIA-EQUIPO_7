@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 import mysql.connector
 from Registro import RegisterWindow
-from Home import HomeWindow  # Asegúrate de importar la clase HomeWindow desde el archivo home.py
+from Home import HomeWindow  
 
 class LoginWindow(tk.Tk):
     def __init__(self):
@@ -52,6 +52,7 @@ class LoginWindow(tk.Tk):
 
         try:
             # Conectar a la base de datos
+        ##BACKEND
             conexion = mysql.connector.connect(
                 host="127.0.0.1",
                 user="root",

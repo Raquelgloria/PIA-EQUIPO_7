@@ -7,6 +7,7 @@ from datetime import datetime
 
 
 # Conectar a la base de datos MySQL
+####BACKEND
 def connect_db():
     return mysql.connector.connect(
         host="127.0.0.1",
@@ -15,6 +16,7 @@ def connect_db():
         database="agencia_pia"
     )
 
+#FRONTEND
 class HomeWindow(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -71,6 +73,7 @@ class HomeWindow(tk.Tk):
         action_window.grab_set()  # Bloquear la interacción con la ventana principal
 
 class ActionWindow(tk.Toplevel):
+####BACKEND
     def __init__(self, master, action):
         super().__init__(master)
         self.title(action)
