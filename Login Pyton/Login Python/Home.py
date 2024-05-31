@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+from PIL import Image, ImageTk
 import mysql.connector
 from datetime import datetime
 
@@ -29,24 +30,35 @@ class HomeWindow(tk.Tk):
         # Calcular dimensiones del margen
         margin_height = (screen_height - window_height) // 2
 
-        # Crear widgets para el margen superior
-        margin_top = tk.Frame(self, height=margin_height)
-        margin_top.pack(fill=tk.BOTH, expand=True)
+        # Crear un frame para la imagen
+        image_frame = tk.Frame(self)
+        image_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        # Cargar la imagen
+        image = Image.open("C:/Users/raque/OneDrive/Imágenes/AUTORUN.png")
+        resized_image = image.resize((window_width, window_height // 2))
+
+        photo = ImageTk.PhotoImage(resized_image)
+
+        # Crear el widget Label para mostrar la imagen
+        image_label = tk.Label(image_frame, image=photo)
+        image_label.image = photo
+        image_label.pack(fill=tk.BOTH, expand=True)
+
+        # Crear un frame para los botones
+        button_frame = tk.Frame(self)
+        button_frame.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
 
         # Crear label para el texto centrado
-        label_home = tk.Label(self, text="Home Screen", font=("Arial", 24))
+        label_home = tk.Label(button_frame, text="¡¡BIENVENIDO!!", font=("Arial", 24))
         label_home.pack()
 
         # Crear lista de acciones
         actions = ["Ingresar Venta", "Modificar Venta", "Eliminar Venta", "Reporte de Venta"]
 
         for action in actions:
-            button = tk.Button(self, text=action, command=lambda a=action: self.open_action_window(a))
+            button = tk.Button(button_frame, text=action, command=lambda a=action: self.open_action_window(a))
             button.pack(pady=10)
-
-        # Crear widgets para el margen inferior
-        margin_bottom = tk.Frame(self, height=margin_height)
-        margin_bottom.pack(fill=tk.BOTH, expand=True)
 
         # Configurar propiedades de la ventana
         self.resizable(True, True)  # Permitir redimensionar la ventana tanto horizontal como verticalmente
