@@ -6,10 +6,10 @@ from datetime import datetime
 # Conectar a la base de datos MySQL
 def connect_db():
     return mysql.connector.connect(
-        host="localhost",
+        host="127.0.0.1",
         user="root",
-        password="tu_contraseña",
-        database="tu_ba"
+        password="",
+        database="agencia_pia"
     )
 
 class HomeWindow(tk.Tk):
@@ -144,8 +144,10 @@ class ActionWindow(tk.Toplevel):
             )
             conn.commit()
             messagebox.showinfo("Confirmación", "Venta ingresada con éxito")
-        except Exception as e:
-            messagebox.showerror("Error", f"Error al ingresar la venta: {e}")
+        except mysql.connector.Error as error:
+            messagebox.showerror("Error", f"No se ha podido ingresar la venta: {error}")
+        except Exception as error:
+            messagebox.showerror("Error", f"No se ha podido ingresar la venta: {error}")
         finally:
             cursor.close()
             conn.close()
@@ -165,8 +167,10 @@ class ActionWindow(tk.Toplevel):
             )
             conn.commit()
             messagebox.showinfo("Confirmación", "Venta modificada con éxito")
-        except Exception as e:
-            messagebox.showerror("Error", f"Error al modificar la venta: {e}")
+        except mysql.connector.Error as error:
+            messagebox.showerror("Error", f"No se ha podido modificar la venta: {error}")
+        except Exception as error:
+            messagebox.showerror("Error", f"No se ha podido modificar la venta: {error}")
         finally:
             cursor.close()
             conn.close()
@@ -182,8 +186,10 @@ class ActionWindow(tk.Toplevel):
             cursor.execute("DELETE FROM Ventas WHERE VentaID = %s", (sale_id,))
             conn.commit()
             messagebox.showinfo("Confirmación", "Venta eliminada con éxito")
-        except Exception as e:
-            messagebox.showerror("Error", f"Error al eliminar la venta: {e}")
+        except mysql.connector.Error as error:
+            messagebox.showerror("Error", f"No se ha podido eliminar la venta: {error}")
+        except Exception as error:
+            messagebox.showerror("Error", f"No se ha podido eliminar la venta: {error}")
         finally:
             cursor.close()
             conn.close()
@@ -192,6 +198,7 @@ class ActionWindow(tk.Toplevel):
 if __name__ == "__main__":
     home_window = HomeWindow()
     home_window.mainloop()
+
 
 
 
