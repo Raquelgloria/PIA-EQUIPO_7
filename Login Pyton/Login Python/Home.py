@@ -1,8 +1,10 @@
 import tkinter as tk
+from tkinter import ttk  # Importa ttk para utilizar Treeview
 from tkinter import messagebox
 from PIL import Image, ImageTk
 import mysql.connector
 from datetime import datetime
+
 
 # Conectar a la base de datos MySQL
 def connect_db():
@@ -133,12 +135,29 @@ class ActionWindow(tk.Toplevel):
         cursor.execute("SELECT * FROM Ventas")
         rows = cursor.fetchall()
 
-        report_text = "\n".join([str(row) for row in rows])
-        report_label = tk.Label(self, text=report_text, font=("Arial", 12))
-        report_label.pack(pady=10)
+        # Crear un Treeview para mostrar la tabla
+        tree = ttk.Treeview(self)
+        tree["columns"] = ("Cliente ID", "Empleado ID", "Fecha Venta", "Precio Total")
+        tree.heading("#0", text="Venta ID")
+        tree.heading("Cliente ID", text="Cliente ID")
+        tree.heading("Empleado ID", text="Empleado ID")
+        tree.heading("Fecha Venta", text="Fecha Venta")
+        tree.heading("Precio Total", text="Precio Total")
+
+        # Insertar filas en el Treeview
+        for row in rows:
+            tree.insert("", tk.END, text=row[0], values=(row[1], row[2], row[3], row[4]))
+
+        # Ajustar columnas al contenido
+        for column in tree["columns"]:
+            tree.column(column, stretch=tk.YES)
+            tree.column(column, width=100)  # Ajusta el ancho de las columnas según sea necesario
+
+        tree.pack(pady=10)
 
         cursor.close()
         conn.close()
+
 
     def ingresar_venta(self):
         conn = connect_db()
